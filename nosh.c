@@ -1,9 +1,7 @@
-/*
- * nosh - noshell
- * a 2-hour C shell for POSIX mates
+/* nosh - noshell
+ * precisely 100 lines of pure POSIX and standard C code for thy eyes!
  *
- * czjstmax <jstmaxlol at disroot dot org>
- *
+ * von czjstmax, <jstmaxlol at disroot dot org>
  */
 
 #include <stdio.h>
@@ -15,11 +13,8 @@
 #include <wordexp.h>
 #include <sys/wait.h>
 
-//
 void handlecc(int sig);
-void freeStuff();
 
-//
 char *line = NULL;
 size_t len = 0;
 wordexp_t p;
@@ -44,7 +39,8 @@ int main(void)
         if (strlen(line) == 0)
             continue;               //otherwise.. SIGSEGV!
         if (strcmp(p.we_wordv[0], ":q") == 0 || strcmp(p.we_wordv[0], "exit") == 0) {
-            freeStuff();
+            wordfree(&p);
+            free(line);
             return 0;
         }
         else if (strcmp(p.we_wordv[0], "echo") == 0) {
@@ -63,6 +59,17 @@ int main(void)
         else if (strcmp(p.we_wordv[0], "clear") == 0) {
             printf("\033[2J\033[H\033[3J");
             fflush(stdout);
+        }
+        else if (strcmp(p.we_wordv[0], "help") == 0) {
+            printf(
+                "nosh - noshell\na minimal POSIX C shell for *NIX dudes.\n\nbuilt-ins:\n"
+                "echo  -> outputs a string of text, doesn't need \" enclosure.\n"
+                "         supports '-c' for output without '\\n'"
+                "clear -> clears screen (and scrollback)\n"
+                "cd    -> change working directory\n"
+                "help  -> prints this screen\n"
+                "\ngithub repo: github.com/jstmaxlol/nosh\n"
+            );
         }
         else {
             pid_t pid = fork();
@@ -88,13 +95,6 @@ int main(void)
 void handlecc(int sig)
 {
     printf("\nnsh! %d caught.\nfreeing stuff before quitting.\n", sig);
-    freeStuff();
     exit(0);
-}
-
-void freeStuff()
-{
-    wordfree(&p);
-    free(line);
 }
 
