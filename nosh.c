@@ -1,5 +1,5 @@
 /* nosh - noshell
- * precisely 100 lines of pure POSIX and standard C code for thy eyes!
+ * ~100+ lines of pure POSIX and standard C code for thy eyes!
  *
  * von czjstmax, <jstmaxlol at disroot dot org>
  */
@@ -36,8 +36,10 @@ int main(void)
 //             printf("argv[%zu] = %s\n", i, p.we_wordv[i]);
 //         }
 
-        if (strlen(line) == 0)
-            continue;               //otherwise.. SIGSEGV!
+        if (strlen(line) == 0) {
+            wordfree(&p);
+            continue;               //otherwise.. SIGSEGV
+        }
         if (strcmp(p.we_wordv[0], ":q") == 0 || strcmp(p.we_wordv[0], "exit") == 0) {
             wordfree(&p);
             free(line);
@@ -53,6 +55,11 @@ int main(void)
             }
         }
         else if (strcmp(p.we_wordv[0], "cd") == 0) {
+            if (p.we_wordc <= 1) {
+                printf("nsh! cd: no arguments were given.\n");
+                wordfree(&p);
+                continue;
+            }
             if (chdir(p.we_wordv[1]))
                 perror("nsh! ERROR: failed to change directory");
         }
@@ -75,10 +82,8 @@ int main(void)
             pid_t pid = fork();
             char **argv = p.we_wordv; // pray with me now
             if (pid == 0) {
-                char path[strlen("/usr/bin/") + strlen(p.we_wordv[0]) + 1];
-                sprintf(path, "/usr/bin/%s", p.we_wordv[0]);
-                execv(path, argv);
-                perror("nsh! ERROR: failed to execv()");
+                execvp(p.we_wordv[0], argv);
+                perror("nsh! ERROR: failed to execvp()");
                 _exit(1);
             }
             else if (pid > 0) {
