@@ -47,9 +47,9 @@ int main(void)
             for (size_t i = 1; i < p.we_wordc; i++)
                 printf("%s ", p.we_wordv[i]);
             if (p.we_wordc >= 2) {
-                if (strcmp(p.we_wordv[1], "-c") == 0)
-                    continue;
-                printf("\n");
+                if (strcmp(p.we_wordv[1], "-c") != 0)
+                    printf("\n");
+                else continue;
             }
         }
         else if (strcmp(p.we_wordv[0], "cd") == 0) {
