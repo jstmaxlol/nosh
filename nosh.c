@@ -1,5 +1,5 @@
 /* nosh - noshell
- * ~100+ lines of pure POSIX and standard C code for thy eyes!
+ * 100 lines of pure POSIX and standard C code for thy eyes!
  *
  * von czjstmax, <jstmaxlol at disroot dot org>
  */
@@ -22,7 +22,7 @@ wordexp_t p;
 int main(void)
 {
     signal(SIGINT, handlecc);
-
+    
     while (true) {
         printf("$ ");
         getline(&line, &len, stdin);
@@ -30,11 +30,6 @@ int main(void)
         line[strcspn(line, "\n")] = '\0';
 
         wordexp(line, &p, 0);
-
-        // debug
-//         for (size_t i = 0; i < p.we_wordc; i++) {
-//             printf("argv[%zu] = %s\n", i, p.we_wordv[i]);
-//         }
 
         if (strlen(line) == 0) {
             wordfree(&p);
@@ -81,6 +76,7 @@ int main(void)
         else {
             pid_t pid = fork();
             char **argv = p.we_wordv; // pray with me now
+
             if (pid == 0) {
                 execvp(p.we_wordv[0], argv);
                 perror("nsh! ERROR: failed to execvp()");
@@ -99,7 +95,6 @@ int main(void)
 
 void handlecc(int sig)
 {
-    printf("\nnsh! %d caught.\nfreeing stuff before quitting.\n", sig);
-    exit(0);
+    (void)sig;
 }
 
